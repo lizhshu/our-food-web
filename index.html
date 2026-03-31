@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭小点餐</title>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", "PingFang SC", sans-serif;
+        }
+        body {
+            background: #fff5f8;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .title {
+            text-align: center;
+            color: #ff7a9c;
+            font-size: 28px;
+            margin: 20px 0;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px #ffe6ef;
+        }
+        .booking-toggle {
+            color: #ff7a9c;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .booking-box {
+            display: none;
+            margin: 10px 0;
+        }
+        .booking-box input, .booking-box select {
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid #ffd6e4;
+            margin: 5px;
+        }
+        .user-select {
+            margin: 10px 0;
+            display: flex;
+            gap: 20px;
+        }
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .food-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 16px;
+        }
+        .count-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #ff7a9c;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .cart {
+            margin-top: 15px;
+            min-height: 40px;
+        }
+        .btn {
+            background: #ff7a9c;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            width: 100%;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        /* 修复核心：视觉隐藏文字容器，不影响图片生成 */
+        #cardContent {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            padding: 20px;
+            background: #fff9fc;
+            border-radius: 15px;
+            line-height: 1.8;
+            font-size: 16px;
+            width: 300px;
+        }
+        /* 仅展示生成的图片 */
+        #order-card {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+        }
+        #order-img {
+            width: 100%;
+            border-radius: 10px;
+            border: 2px solid #ffd6e4;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">🍕 家庭小点餐</h1>
+
+    <!-- 预约功能 -->
+    <div class="card">
+        <div class="booking-toggle" onclick="toggleBooking()">➕ 添加预约时间</div>
+        <div class="booking-box" id="bookingBox">
+            <input type="date" id="orderDate">
+            <select id="orderHour">
+                <option value="">整点</option>
+                <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+                <option>11</option><option>12</option><option>17</option><option>18</option><option>19</option>
+            </select> 点左右
+        </div>
+    </div>
+
+    <!-- 点餐人：ODA / ODB -->
+    <div class="card">
+        <h3 style="color:#ff7a9c; margin-bottom:10px;">👤 点餐人</h3>
+        <div class="user-select">
+            <div class="user-item">
+                <input type="radio" name="user" id="oda" value="ODA" checked>
+                <label for="oda">ODA</label>
+            </div>
+            <div class="user-item">
+                <input type="radio" name="user" id="odb" value="ODB">
+                <label for="odb">ODB</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- 菜单 -->
+    <div class="card">
+        <h3 style="color:#ff7a9c; margin-bottom:10px;">🍔 菜单</h3>
+        <div class="food-item">
+            <span>番茄鸡蛋面</span>
+            <div>
+                <button class="count-btn" onclick="changeNum('noodle',-1)">-</button>
+                <span id="noodle" style="margin:0 8px;">0</span>
+                <button class="count-btn" onclick="changeNum('noodle',1)">+</button>
+            </div>
+        </div>
+        <div class="food-item">
+            <span>奥尔良烤翅</span>
+            <div>
+                <button class="count-btn" onclick="changeNum('wing',-1)">-</button>
+                <span id="wing" style="margin:0 8px;">0</span>
+                <button class="count-btn" onclick="changeNum('wing',1)">+</button>
+            </div>
+        </div>
+        <div class="food-item">
+            <span>水果沙拉</span>
+            <div>
+                <button class="count-btn" onclick="changeNum('salad',-1)">-</button>
+                <span id="salad" style="margin:0 8px;">0</span>
+                <button class="count-btn" onclick="changeNum('salad',1)">+</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 点餐清单 + 生成按钮 -->
+    <div class="card">
+        <h3 style="color:#ff7a9c; margin-bottom:10px;">🛒 点餐清单</h3>
+        <div class="cart" id="cartList">暂无点餐</div>
+        <button class="btn" onclick="createCard()">✅ 生成点餐卡片</button>
+    </div>
+
+    <!-- 只显示图片 -->
+    <div id="order-card">
+        <h3 style="color:#ff7a9c;">📝 点餐卡</h3>
+        <div id="cardContent"></div>
+        <img id="order-img" alt="点餐卡">
+    </div>
+
+<script>
+let foods = { noodle: 0, wing: 0, salad: 0 }
+const foodName = { noodle: '番茄鸡蛋面', wing: '奥尔良烤翅', salad: '水果沙拉' }
+
+// 切换预约
+function toggleBooking() {
+    const box = document.getElementById('bookingBox')
+    box.style.display = box.style.display === 'block' ? 'none' : 'block'
+}
+
+// 修改数量
+function changeNum(key, n) {
+    foods[key] = Math.max(0, foods[key] + n)
+    document.getElementById(key).innerText = foods[key]
+    showCart()
+}
+
+// 展示清单
+function showCart() {
+    let list = []
+    for (let k in foods) {
+        if (foods[k] > 0) list.push(foodName[k] + ' × ' + foods[k])
+    }
+    document.getElementById('cartList').innerHTML = list.join('<br>') || '暂无点餐'
+}
+
+// 生成图片（修复完成）
+async function createCard() {
+    // 获取信息
+    const user = document.querySelector('input[name="user"]:checked').value;
+    const date = document.getElementById('orderDate').value;
+    const hour = document.getElementById('orderHour').value;
+    const time = date && hour ? `预约：${date} ${hour}点左右` : '预约：无';
+    const cart = document.getElementById('cartList').innerText;
+
+    // 组装内容
+    const content = document.getElementById('cardContent');
+    content.innerHTML = `
+    点餐人：${user}<br><br>
+    ${time}<br><br>
+    点餐内容：<br>${cart}
+    `;
+
+    // 显示区域
+    document.getElementById('order-card').style.display = 'block';
+
+    // 生成高清图片
+    const canvas = await html2canvas(content, { scale: 2, backgroundColor: '#fff9fc' });
+    document.getElementById('order-img').src = canvas.toDataURL('image/png');
+}
+</script>
+</body>
+</html>
