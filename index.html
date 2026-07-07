@@ -1,417 +1,821 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>健康铺子</title>
-<!-- 替换为国内可访问的稳定CDN源 -->
-<script src="https://cdn.bootcdn.net/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:"微软雅黑",system-ui,sans-serif;
-}
-:root{
-    --main-yellow:#ccaa66;
-    --light-yellow:#f2d399;
-    --bg-warm:#fffdf0;
-    --border-yellow:#e6d8b8;
-    --text-dark:#2c2c2c;
-    --text-gray:#666;
-    --shadow-sm:0 2px 8px rgba(204,170,102,0.12);
-    --shadow-md:0 4px 16px rgba(204,170,102,0.18);
-    --radius-base:16px;
-    --radius-round:999px;
-}
-body{
-    background:var(--bg-warm);
-    padding:24px 16px;
-    max-width:620px;
-    margin:0 auto;
-    color:var(--text-dark);
-    line-height:1.6;
-}
-.title{
-    text-align:center;
-    color:var(--main-yellow);
-    font-size:32px;
-    margin:12px 0 32px;
-    font-weight:600;
-    letter-spacing:2px;
-    position:relative;
-}
-.title::after{
-    content:"";
-    display:block;
-    width:80px;
-    height:3px;
-    background:linear-gradient(90deg,transparent,var(--light-yellow),transparent);
-    margin:10px auto 0;
-    border-radius:3px;
-}
-.card{
-    background:#ffffff;
-    border-radius:var(--radius-base);
-    padding:24px;
-    margin-bottom:22px;
-    box-shadow:var(--shadow-sm);
-    border:1px solid rgba(230,216,184,0.4);
-    transition:0.25s ease;
-}
-.card:hover{
-    box-shadow:var(--shadow-md);
-    transform:translateY(-2px);
-}
-.card h3{
-    color:var(--main-yellow);
-    margin-bottom:16px;
-    font-size:18px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-}
-.booking-toggle{
-    color:var(--main-yellow);
-    cursor:pointer;
-    font-weight:bold;
-    padding:10px 14px;
-    border-radius:12px;
-    background:rgba(242,211,153,0.15);
-    display:inline-block;
-    transition:0.2s;
-}
-.booking-toggle:hover{
-    background:rgba(242,211,153,0.28);
-}
-.booking-box{
-    display:none;
-    margin-top:16px;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:12px;
-}
-.booking-box input,.booking-box select{
-    padding:10px 14px;
-    border-radius:12px;
-    border:1px solid var(--border-yellow);
-    background:#fff;
-    font-size:15px;
-    outline:none;
-    transition:0.2s;
-}
-.booking-box input:focus,.booking-box select:focus{
-    border-color:var(--main-yellow);
-    box-shadow:0 0 0 3px rgba(204,170,102,0.15);
-}
-#remark{
-    width:100%;
-    height:80px;
-    padding:12px 14px;
-    border-radius:12px;
-    border:1px solid var(--border-yellow);
-    resize:none;
-    background:#fff;
-    margin-top:4px;
-    font-size:15px;
-    outline:none;
-    transition:0.2s;
-}
-#remark:focus{
-    border-color:var(--main-yellow);
-    box-shadow:0 0 0 3px rgba(204,170,102,0.15);
-}
-.user-select{
-    margin:4px 0;
-    display:flex;
-    gap:32px;
-}
-.user-item{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    color:var(--text-dark);
-    font-size:16px;
-    cursor:pointer;
-}
-.food-item{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:14px 0;
-    border-bottom:1px solid #f5f1e7;
-    font-size:16px;
-}
-.food-item:last-child{
-    border-bottom:none;
-}
-.count-btn{
-    width:34px;
-    height:34px;
-    border-radius:50%;
-    border:none;
-    background:var(--light-yellow);
-    color:#fff;
-    cursor:pointer;
-    font-size:18px;
-    transition:0.2s;
-}
-.count-btn:hover{
-    background:var(--main-yellow);
-}
-.count-btn:active{
-    transform:scale(0.92);
-}
-.food-item span:nth-child(2){
-    display:inline-block;
-    min-width:26px;
-    text-align:center;
-    font-weight:500;
-}
-.cart{
-    margin-top:8px;
-    min-height:44px;
-    color:var(--text-gray);
-    line-height:1.8;
-    padding:10px 12px;
-    background:#fffdf6;
-    border-radius:12px;
-}
-.btn{
-    background:linear-gradient(135deg,var(--light-yellow),var(--main-yellow));
-    color:white;
-    border:none;
-    padding:14px 25px;
-    border-radius:var(--radius-round);
-    width:100%;
-    font-size:17px;
-    font-weight:500;
-    margin-top:16px;
-    cursor:pointer;
-    transition:0.25s;
-    box-shadow:0 4px 12px rgba(204,170,102,0.25);
-}
-.btn:hover{
-    opacity:0.92;
-    transform:translateY(-2px);
-    box-shadow:0 6px 16px rgba(204,170,102,0.3);
-}
-.btn:active{
-    transform:translateY(0);
-}
-.btn:disabled{
-    opacity:0.6;
-    cursor:not-allowed;
-    transform:none;
-}
-#cardContent{
-    position:absolute;
-    left:-9999px;
-    top:-9999px;
-    padding:28px;
-    background:#fff;
-    border-radius:18px;
-    line-height:2;
-    font-size:16px;
-    width:340px;
-    border:2px solid var(--light-yellow);
-}
-#cardContent strong{
-    color:var(--main-yellow);
-    font-size:17px;
-}
-#order-card{
-    background:#fff;
-    padding:26px;
-    border-radius:20px;
-    margin-top:24px;
-    display:none;
-    text-align:center;
-    box-shadow:var(--shadow-md);
-    border:1px solid var(--border-yellow);
-}
-#order-card h3{
-    margin-bottom:18px;
-}
-#order-img{
-    width:100%;
-    border-radius:14px;
-    border:2px solid var(--light-yellow);
-}
-.loading-text{
-    color:var(--main-yellow);
-    margin:20px 0;
-}
-.error-text{
-    color:#e53e3e;
-    margin:20px 0;
-}
-</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>根咪点单</title>
+    <!-- Font Awesome 6 (免费) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #fce8e0 0%, #f9d8d0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .order-card {
+            max-width: 700px;
+            width: 100%;
+            background: rgba(255, 248, 245, 0.85);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 48px 48px 40px 40px;
+            box-shadow: 0 20px 40px rgba(180, 90, 70, 0.25), 0 8px 16px rgba(0, 0, 0, 0.06);
+            padding: 28px 24px 36px;
+            border: 1px solid rgba(255, 220, 210, 0.6);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            color: #6b3f3a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 i {
+            color: #d45c4a;
+            font-size: 2.2rem;
+            filter: drop-shadow(0 4px 6px rgba(200, 80, 60, 0.3));
+        }
+
+        .couple-badge {
+            background: #d45c4a;
+            padding: 8px 20px;
+            border-radius: 60px;
+            color: #fff6f0;
+            font-weight: 500;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 8px rgba(190, 70, 50, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.4px;
+        }
+
+        .couple-badge i {
+            font-size: 1rem;
+        }
+
+        /* 菜单网格 */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 18px;
+            margin: 24px 0 28px;
+        }
+
+        .menu-item {
+            background: rgba(255, 245, 240, 0.7);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            border-radius: 28px;
+            padding: 18px 10px 14px;
+            text-align: center;
+            border: 1px solid #fce3db;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(150, 70, 50, 0.04);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-4px);
+            border-color: #dba392;
+            background: #fff3ed;
+            box-shadow: 0 12px 18px rgba(160, 80, 60, 0.10);
+        }
+
+        .menu-item.selected {
+            border: 2px solid #d45c4a;
+            background: #ffe8e0;
+            box-shadow: 0 0 0 3px rgba(212, 92, 74, 0.15);
+        }
+
+        .menu-item .emoji-big {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+
+        .menu-item .item-name {
+            font-weight: 600;
+            color: #4f2f2a;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .menu-item .add-hint {
+            font-size: 0.7rem;
+            color: #aa7b6e;
+            margin-top: 6px;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        /* 订单汇总 (无金额) */
+        .order-summary {
+            background: #fff3ef;
+            border-radius: 40px;
+            padding: 22px 20px 20px;
+            margin: 18px 0 28px;
+            border: 1px solid #fadfd6;
+            box-shadow: inset 0 2px 8px rgba(255, 215, 200, 0.3);
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .summary-header h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: #532f28;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-header h3 i {
+            color: #bd6b5a;
+        }
+
+        .summary-header .clear-btn {
+            background: none;
+            border: none;
+            color: #9f6b5e;
+            font-size: 0.9rem;
+            padding: 6px 14px;
+            border-radius: 40px;
+            background: #f5ded7;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .summary-header .clear-btn:hover {
+            background: #eccbc2;
+            color: #6e3d32;
+        }
+
+        .order-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fffcf9;
+            padding: 12px 16px;
+            border-radius: 60px;
+            border-left: 5px solid #dba392;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .order-item .left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .order-item .left .emoji {
+            font-size: 1.5rem;
+        }
+
+        .order-item .left .details .name {
+            font-weight: 500;
+            color: #3f2924;
+        }
+
+        .order-item .right .remove-btn {
+            background: none;
+            border: none;
+            color: #b07b6b;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px 10px;
+            border-radius: 30px;
+            transition: 0.15s;
+        }
+
+        .order-item .right .remove-btn:hover {
+            background: #f2d4ca;
+            color: #8b4c3a;
+        }
+
+        /* 预约取餐时间 */
+        .pickup-section {
+            background: #fff3ef;
+            border-radius: 40px;
+            padding: 18px 20px 20px;
+            margin: 18px 0 28px;
+            border: 1px solid #fadfd6;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .pickup-section label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            color: #532f28;
+            font-size: 1.05rem;
+        }
+
+        .pickup-section label i {
+            color: #bd6b5a;
+            font-size: 1.2rem;
+        }
+
+        .pickup-section input[type="datetime-local"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 16px;
+            border-radius: 60px;
+            border: 1px solid #f0d3c9;
+            background: #fffcf9;
+            font-size: 1rem;
+            color: #3f2924;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .pickup-section input[type="datetime-local"]:focus {
+            border-color: #d45c4a;
+            box-shadow: 0 0 0 3px rgba(212, 92, 74, 0.15);
+        }
+
+        .action-row {
+            display: flex;
+            gap: 14px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            min-width: 120px;
+            background: #ffffffd4;
+            backdrop-filter: blur(2px);
+            border: 1px solid #f0d3c9;
+            border-radius: 60px;
+            padding: 15px 8px;
+            font-weight: 600;
+            color: #562f27;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: 0.2s;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(120, 60, 40, 0.04);
+        }
+
+        .action-btn.primary {
+            background: #d45c4a;
+            border: 1px solid #c74f3d;
+            color: white;
+            box-shadow: 0 8px 16px rgba(190, 70, 50, 0.25);
+        }
+
+        .action-btn.primary:hover {
+            background: #be4d3b;
+            transform: scale(0.98);
+        }
+
+        .action-btn.secondary:hover {
+            background: #f2e0d9;
+        }
+
+        .action-btn.save-btn {
+            background: #6b8c7c;
+            border-color: #5a7a6a;
+            color: white;
+            box-shadow: 0 8px 16px rgba(90, 120, 100, 0.25);
+        }
+
+        .action-btn.save-btn:hover {
+            background: #5a7a6a;
+            transform: scale(0.98);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #9b766a;
+            padding: 12px 0;
+            font-size: 0.95rem;
+            opacity: 0.8;
+        }
+
+        /* 生成的卡片小票 */
+        .receipt-card {
+            background: #fffaf7;
+            border-radius: 40px;
+            padding: 24px 20px 20px;
+            margin-top: 24px;
+            border: 2px solid #dba392;
+            box-shadow: 0 12px 24px rgba(160, 80, 60, 0.12);
+            display: none;
+        }
+
+        .receipt-card.active {
+            display: block;
+        }
+
+        .receipt-card .receipt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px dashed #eacbc0;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .receipt-card .receipt-header h2 {
+            font-weight: 500;
+            color: #532f28;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .receipt-card .receipt-header h2 i {
+            color: #d45c4a;
+        }
+
+        .receipt-card .receipt-body {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .receipt-card .receipt-body .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #f5e3de;
+            font-size: 1rem;
+            color: #3f2924;
+        }
+
+        .receipt-card .receipt-body .receipt-item .r-emoji {
+            margin-right: 10px;
+        }
+
+        .receipt-card .receipt-footer {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 2px dashed #eacbc0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            color: #6b4a40;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .receipt-card .receipt-footer span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .receipt-card .receipt-footer i {
+            color: #a55747;
+        }
+
+        /* 小屏适配 */
+        @media (max-width: 480px) {
+            .order-card {
+                padding: 20px 16px;
+            }
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .pickup-section input[type="datetime-local"] {
+                min-width: 140px;
+            }
+            .action-btn {
+                min-width: 100px;
+                padding: 12px 8px;
+                font-size: 0.9rem;
+            }
+        }
+
+        .order-items::-webkit-scrollbar {
+            width: 6px;
+        }
+        .order-items::-webkit-scrollbar-track {
+            background: #f0dbd3;
+            border-radius: 10px;
+        }
+        .order-items::-webkit-scrollbar-thumb {
+            background: #dba392;
+            border-radius: 10px;
+        }
+
+        .heart-pulse {
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* 保存提示 */
+        .save-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #3f2924;
+            color: #fff6f0;
+            padding: 14px 28px;
+            border-radius: 60px;
+            font-weight: 500;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 999;
+        }
+        .save-toast.show {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
-<h1 class="title">🍕 健康铺子</h1>
+    <div class="order-card" id="app">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>
+                <i class="fas fa-heart heart-pulse" style="color:#d45c4a;"></i>
+                双人点单
+            </h1>
+            <div class="couple-badge">
+                <i class="fas fa-utensils"></i> 根咪专享
+            </div>
+        </div>
 
-<div class="card">
-<div class="booking-toggle" onclick="toggleBooking()">➕ 添加预约时间</div>
-<div class="booking-box" id="bookingBox">
-<input type="date" id="orderDate">
-<select id="orderHour">
-<option value="">整点</option>
-<option>7</option><option>8</option><option>9</option><option>10</option><option>11</option>
-<option>12</option><option>17</option><option>18</option><option>19</option>
-</select>
-<span>点左右</span>
-</div>
-</div>
+        <!-- 菜单列表 -->
+        <div class="menu-grid" id="menuGrid"></div>
 
-<div class="card">
-<h3>👤 点餐人</h3>
-<div class="user-select">
-<div class="user-item">
-<input type="radio" name="user" id="oda" value="小咪" checked>
-<label for="oda">小咪</label>
-</div>
-<div class="user-item">
-<input type="radio" name="user" id="odb" value="小根">
-<label for="odb">小根</label>
-</div>
-</div>
-</div>
+        <!-- 当前订单汇总 -->
+        <div class="order-summary">
+            <div class="summary-header">
+                <h3><i class="fas fa-list-ul"></i> 当前订单</h3>
+                <button class="clear-btn" id="clearAllBtn"><i class="fas fa-trash-alt"></i> 清空</button>
+            </div>
+            <div class="order-items" id="orderItems">
+                <div class="empty-state">✨ 还没有点单，选一些美食吧</div>
+            </div>
+        </div>
 
-<div class="card">
-<h3>📝 备注（可选）</h3>
-<textarea id="remark" placeholder="客官有备注吗：少糖、常温、加个枣、不吃辣..."></textarea>
-</div>
+        <!-- 预约取餐时间 -->
+        <div class="pickup-section">
+            <label for="pickupTime"><i class="fas fa-clock"></i> 取餐时间</label>
+            <input type="datetime-local" id="pickupTime" value="" />
+        </div>
 
-<div class="card">
-<h3>🍔 菜单</h3>
-<div id="foodList"></div>
-</div>
+        <!-- 操作按钮 (确认 + 保存图片) -->
+        <div class="action-row">
+            <button class="action-btn primary" id="orderNowBtn"><i class="fas fa-check-circle"></i> 确认点单 ❤️</button>
+            <button class="action-btn save-btn" id="saveImageBtn" style="display:none;">
+                <i class="fas fa-image"></i> 保存为图片
+            </button>
+        </div>
 
-<div class="card">
-<h3>🛒 点餐清单</h3>
-<div class="cart" id="cartList">暂无点餐</div>
-<button class="btn" id="generateBtn" onclick="createCard()">✅ 生成点餐卡片</button>
-</div>
+        <!-- 小票卡片 -->
+        <div class="receipt-card" id="receiptCard">
+            <div class="receipt-header">
+                <h2><i class="fas fa-receipt"></i> 点单小票</h2>
+                <span style="color:#a55747; font-weight:500;">❤️ 根咪专享</span>
+            </div>
+            <div class="receipt-body" id="receiptBody">
+                <!-- 动态渲染 -->
+            </div>
+            <div class="receipt-footer" id="receiptFooter">
+                <span><i class="fas fa-calendar-alt"></i> 点单时间: <span id="receiptOrderTime">--</span></span>
+                <span><i class="fas fa-clock"></i> 取餐时间: <span id="receiptPickupTime">--</span></span>
+            </div>
+        </div>
+    </div>
 
-<div id="order-card">
-<h3 style="color:#ccaa66;">📝 点餐卡预览</h3>
-<div id="cardContent"></div>
-<div id="loadingText" class="loading-text" style="display:none;">正在生成图片，请稍候...</div>
-<div id="errorText" class="error-text" style="display:none;">生成失败，请刷新页面重试</div>
-<img id="order-img" alt="点餐卡图片" style="display:none;">
-</div>
+    <!-- Toast 提示 -->
+    <div class="save-toast" id="saveToast">✅ 图片已保存</div>
 
-<script>
-let foods = {};
-let foodMap = {};
+    <script>
+        (function() {
+            // ---------- 数据 ----------
+            const MENU = [
+                { id: 'm1', name: '炒饭', emoji: '🍄' },
+                { id: 'm2', name: '山东炒鸡', emoji: '🥩' },
+                { id: 'm3', name: '西红柿鸡蛋面', emoji: '🍝' },
+                { id: 'm4', name: '炝土豆丝', emoji: '🥗' },
+                { id: 'm5', name: '拿铁咖啡', emoji: '🥛' },
+                { id: 'm6', name: '抹茶牛奶', emoji: '🥛' },
+                { id: 'm7', name: '当季水果', emoji: '🍇' },
+                { id: 'm8', name: '零食投喂', emoji: '🍫' }
+            ];
 
-const MENU_CONFIG = [
-  {"id":"noodle","name":"番茄鸡蛋面"},
-  {"id":"wing","name":"奥尔良烤翅"},
-  {"id":"salad","name":"水果沙拉"},
-  {"id":"applejuice","name":"苹果陈皮水"},
-  {"id":"coixseed","name":"炒薏苡仁茯苓陈皮"}
-];
+            let orders = [];
+            let currentOrderTime = '';
+            let currentPickupTime = '';
 
-function renderMenu() {
-  const el = document.getElementById('foodList');
-  el.innerHTML = '';
-  MENU_CONFIG.forEach(item => {
-    foods[item.id] = 0;
-    foodMap[item.id] = item.name;
-    el.innerHTML += `
-    <div class="food-item">
-      <span>${item.name}</span>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <button class="count-btn" onclick="changeNum('${item.id}',-1)">-</button>
-        <span id="${item.id}">0</span>
-        <button class="count-btn" onclick="changeNum('${item.id}',1)">+</button>
-      </div>
-    </div>`;
-  });
-}
+            // DOM 引用
+            const menuGrid = document.getElementById('menuGrid');
+            const orderItemsContainer = document.getElementById('orderItems');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const orderNowBtn = document.getElementById('orderNowBtn');
+            const saveImageBtn = document.getElementById('saveImageBtn');
+            const pickupInput = document.getElementById('pickupTime');
+            const receiptCard = document.getElementById('receiptCard');
+            const receiptBody = document.getElementById('receiptBody');
+            const receiptOrderTime = document.getElementById('receiptOrderTime');
+            const receiptPickupTime = document.getElementById('receiptPickupTime');
+            const saveToast = document.getElementById('saveToast');
 
-function toggleBooking() {
-  const b = document.getElementById('bookingBox');
-  b.style.display = b.style.display === 'flex' ? 'none' : 'flex';
-}
+            // ---------- 辅助函数 ----------
+            function setDefaultPickupTime() {
+                const now = new Date();
+                now.setHours(now.getHours() + 1);
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                pickupInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
 
-function changeNum(key, n) {
-  foods[key] = Math.max(0, foods[key] + n);
-  document.getElementById(key).innerText = foods[key];
-  showCart();
-}
+            function renderMenu() {
+                let html = '';
+                MENU.forEach(item => {
+                    const isSelected = orders.some(order => order.id === item.id);
+                    html += `
+                        <div class="menu-item ${isSelected ? 'selected' : ''}" data-id="${item.id}">
+                            <span class="emoji-big">${item.emoji}</span>
+                            <div class="item-name">${item.name}</div>
+                            <div class="add-hint">
+                                ${isSelected ? '✅ 已选' : '<i class="fas fa-plus-circle"></i> 点击'}
+                            </div>
+                        </div>
+                    `;
+                });
+                menuGrid.innerHTML = html;
 
-function showCart() {
-  const list = [];
-  for (let k in foods) {
-    if (foods[k] > 0) list.push(foodMap[k] + ' × ' + foods[k]);
-  }
-  document.getElementById('cartList').innerHTML = list.join('<br>') || '暂无点餐';
-}
+                menuGrid.querySelectorAll('.menu-item').forEach(el => {
+                    el.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        const menuItem = MENU.find(m => m.id === id);
+                        if (!menuItem) return;
 
-async function createCard() {
-  const btn = document.getElementById('generateBtn');
-  const loadingText = document.getElementById('loadingText');
-  const errorText = document.getElementById('errorText');
-  const orderImg = document.getElementById('order-img');
-  
-  // 防止重复点击
-  btn.disabled = true;
-  btn.innerText = '生成中...';
-  loadingText.style.display = 'block';
-  errorText.style.display = 'none';
-  orderImg.style.display = 'none';
-  
-  try {
-    const user = document.querySelector('input[name="user"]:checked').value;
-    const date = document.getElementById('orderDate').value;
-    const hour = document.getElementById('orderHour').value;
-    const time = (date && hour) ? `预约：${date} ${hour}点左右` : '预约：无';
-    const cart = document.getElementById('cartList').innerText;
-    const remark = document.getElementById('remark').value.trim() || '无备注';
+                        const existingIndex = orders.findIndex(o => o.id === id);
+                        if (existingIndex !== -1) {
+                            orders.splice(existingIndex, 1);
+                        } else {
+                            orders.push({ ...menuItem });
+                        }
+                        renderAll();
+                        // 如果订单变化，隐藏保存按钮（重新确认后才会显示）
+                        saveImageBtn.style.display = 'none';
+                        receiptCard.classList.remove('active');
+                    });
+                });
+            }
 
-    const content = document.getElementById('cardContent');
-    content.innerHTML = `
-<strong>点餐人：</strong>${user}<br><br>
-<strong>${time}</strong><br><br>
-<strong>点餐内容：</strong><br>${cart}<br><br>
-<strong>备注：</strong>${remark}
-    `;
-    
-    document.getElementById('order-card').style.display = 'block';
-    
-    // 检查html2canvas是否加载成功
-    if (typeof html2canvas === 'undefined') {
-      throw new Error('截图库加载失败');
-    }
-    
-    const canvas = await html2canvas(content, {
-      scale:3,
-      backgroundColor:'#ffffff',
-      useCORS:true,
-      allowTaint:true,
-      logging:false
-    });
-    
-    orderImg.src = canvas.toDataURL('image/png');
-    orderImg.style.display = 'block';
-    loadingText.style.display = 'none';
-    
-  } catch (error) {
-    console.error('生成失败:', error);
-    loadingText.style.display = 'none';
-    errorText.style.display = 'block';
-  } finally {
-    btn.disabled = false;
-    btn.innerText = '✅ 生成点餐卡片';
-  }
-}
+            function renderOrderList() {
+                if (orders.length === 0) {
+                    orderItemsContainer.innerHTML = `<div class="empty-state">💕 还没有点单，选一些美食吧</div>`;
+                    return;
+                }
 
-// 初始化
-renderMenu();
-</script>
+                let html = '';
+                orders.forEach((item, index) => {
+                    html += `
+                        <div class="order-item" data-index="${index}">
+                            <div class="left">
+                                <span class="emoji">${item.emoji}</span>
+                                <div class="details">
+                                    <span class="name">${item.name}</span>
+                                </div>
+                            </div>
+                            <div class="right">
+                                <button class="remove-btn" data-index="${index}"><i class="fas fa-times-circle"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+                orderItemsContainer.innerHTML = html;
+
+                orderItemsContainer.querySelectorAll('.remove-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        const idx = parseInt(this.dataset.index, 10);
+                        if (!isNaN(idx) && idx >= 0 && idx < orders.length) {
+                            orders.splice(idx, 1);
+                            renderAll();
+                            saveImageBtn.style.display = 'none';
+                            receiptCard.classList.remove('active');
+                        }
+                    });
+                });
+            }
+
+            function clearAllOrders() {
+                if (orders.length === 0) return;
+                if (confirm('确定要清空所有点单吗？')) {
+                    orders = [];
+                    renderAll();
+                    receiptCard.classList.remove('active');
+                    saveImageBtn.style.display = 'none';
+                }
+            }
+
+            function renderAll() {
+                renderMenu();
+                renderOrderList();
+            }
+
+            // ---------- 确认点单 ----------
+            function handleOrderNow() {
+                if (orders.length === 0) {
+                    alert('💕 还没有点任何东西呢，选一些美食吧！');
+                    return;
+                }
+
+                let pickupVal = pickupInput.value;
+                if (!pickupVal) {
+                    alert('请选择取餐时间 ⏰');
+                    return;
+                }
+                const pickupDate = new Date(pickupVal);
+                if (isNaN(pickupDate.getTime())) {
+                    alert('取餐时间格式无效，请重新选择');
+                    return;
+                }
+
+                const now = new Date();
+                currentOrderTime = now.toLocaleString('zh-CN', { hour12: false });
+                currentPickupTime = pickupDate.toLocaleString('zh-CN', { hour12: false });
+
+                // 构建小票
+                let itemsHtml = '';
+                orders.forEach(item => {
+                    itemsHtml += `
+                        <div class="receipt-item">
+                            <span><span class="r-emoji">${item.emoji}</span> ${item.name}</span>
+                            <span>❤️</span>
+                        </div>
+                    `;
+                });
+
+                receiptBody.innerHTML = itemsHtml;
+                receiptOrderTime.textContent = currentOrderTime;
+                receiptPickupTime.textContent = currentPickupTime;
+
+                receiptCard.classList.add('active');
+                saveImageBtn.style.display = 'flex';
+
+                // 滚动到小票
+                receiptCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // ---------- 保存为图片 (使用 html2canvas) ----------
+            function saveReceiptAsImage() {
+                const card = document.getElementById('receiptCard');
+                if (!card.classList.contains('active')) {
+                    alert('请先确认点单生成小票');
+                    return;
+                }
+
+                // 动态加载 html2canvas
+                if (typeof html2canvas === 'undefined') {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+                    script.onload = function() {
+                        captureAndDownload(card);
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    captureAndDownload(card);
+                }
+            }
+
+            function captureAndDownload(element) {
+                html2canvas(element, {
+                    scale: 2,
+                    backgroundColor: '#fffaf7',
+                    allowTaint: false,
+                    useCORS: true,
+                    logging: false,
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `点单小票_${Date.now()}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+
+                    // 显示 Toast
+                    saveToast.classList.add('show');
+                    setTimeout(() => {
+                        saveToast.classList.remove('show');
+                    }, 2500);
+                }).catch(err => {
+                    console.error('生成图片失败:', err);
+                    alert('生成图片失败，请重试或截图保存 🙏');
+                });
+            }
+
+            // ---------- Toast 提示 ----------
+            function showToast(msg) {
+                saveToast.textContent = msg;
+                saveToast.classList.add('show');
+                setTimeout(() => {
+                    saveToast.classList.remove('show');
+                }, 2500);
+            }
+
+            // ---------- 初始化 ----------
+            function init() {
+                setDefaultPickupTime();
+                orders = [];
+                renderAll();
+                receiptCard.classList.remove('active');
+                saveImageBtn.style.display = 'none';
+
+                clearAllBtn.addEventListener('click', clearAllOrders);
+                orderNowBtn.addEventListener('click', handleOrderNow);
+                saveImageBtn.addEventListener('click', saveReceiptAsImage);
+
+                // 如果用户修改了取餐时间，且小票已显示，更新小票中的取餐时间
+                pickupInput.addEventListener('change', function() {
+                    if (receiptCard.classList.contains('active')) {
+                        const val = this.value;
+                        if (val) {
+                            const d = new Date(val);
+                            if (!isNaN(d.getTime())) {
+                                currentPickupTime = d.toLocaleString('zh-CN', { hour12: false });
+                                receiptPickupTime.textContent = currentPickupTime;
+                            }
+                        }
+                    }
+                });
+            }
+
+            init();
+        })();
+    </script>
 </body>
 </html>
